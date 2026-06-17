@@ -41,14 +41,14 @@ jobs:
             --region $AWS_REGION \
             --name $EKS_CLUSTER
 
+      - name: Preparar imagenes ECR en manifiestos
+        run: |
+          sed -i "s|image: innovatech-spa-frontend:latest|image: $ECR_REGISTRY/$FRONTEND_ECR_REPOSITORY:latest|g" infra/k8s/frontend.yml
+          sed -i "s|image: innovatech-spa-backend:latest|image: $ECR_REGISTRY/$BACKEND_ECR_REPOSITORY:latest|g" infra/k8s/backend.yml
+
       - name: Aplicar manifiestos Kubernetes
         run: |
           kubectl apply -f infra/k8s/
-
-      - name: Actualizar imagenes desde ECR
-        run: |
-          kubectl set image deployment/frontend frontend=$ECR_REGISTRY/$FRONTEND_ECR_REPOSITORY:latest
-          kubectl set image deployment/backend backend=$ECR_REGISTRY/$BACKEND_ECR_REPOSITORY:latest
 
       - name: Validar despliegue
         run: |

@@ -6,10 +6,7 @@ spec:
   replicas: 1
   progressDeadlineSeconds: 120
   strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxUnavailable: 1
-      maxSurge: 1
+    type: Recreate
   selector:
     matchLabels:
       app: frontend
@@ -25,3 +22,10 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 80
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
