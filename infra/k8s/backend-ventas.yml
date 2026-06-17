@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend
+  name: backend-ventas
 spec:
   replicas: 1
   progressDeadlineSeconds: 120
@@ -12,16 +12,16 @@ spec:
       maxSurge: 0
   selector:
     matchLabels:
-      app: backend
+      app: backend-ventas
   template:
     metadata:
       labels:
-        app: backend
+        app: backend-ventas
     spec:
       terminationGracePeriodSeconds: 10
       containers:
-        - name: backend
-          image: innovatech-spa-backend:latest
+        - name: backend-ventas
+          image: innovatech-spa-backend:ventas-latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -33,6 +33,10 @@ spec:
               cpu: "300m"
               memory: "512Mi"
           env:
+            - name: JAVA_TOOL_OPTIONS
+              value: "-XX:MaxRAMPercentage=75.0"
+            - name: DB_HOST
+              value: mysql
             - name: SPRING_DATASOURCE_URL
               value: jdbc:mysql://mysql:3306/innovatech-spa
             - name: SPRING_DATASOURCE_USERNAME

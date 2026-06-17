@@ -65,17 +65,17 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
-          docker build -t $ECR_REGISTRY/$BACKEND_ECR_REPOSITORY:${{ github.sha }} .
-          docker tag $ECR_REGISTRY/$BACKEND_ECR_REPOSITORY:${{ github.sha }} $ECR_REGISTRY/$BACKEND_ECR_REPOSITORY:latest
-          docker push $ECR_REGISTRY/$BACKEND_ECR_REPOSITORY:${{ github.sha }}
-          docker push $ECR_REGISTRY/$BACKEND_ECR_REPOSITORY:latest
+          docker build -t $ECR_REGISTRY/$BACKEND_ECR_REPOSITORY:ventas-${{ github.sha }} .
+          docker tag $ECR_REGISTRY/$BACKEND_ECR_REPOSITORY:ventas-${{ github.sha }} $ECR_REGISTRY/$BACKEND_ECR_REPOSITORY:ventas-latest
+          docker push $ECR_REGISTRY/$BACKEND_ECR_REPOSITORY:ventas-${{ github.sha }}
+          docker push $ECR_REGISTRY/$BACKEND_ECR_REPOSITORY:ventas-latest
 
       - name: Build y Push Backend Despacho
         working-directory: backend/Springboot-API-REST-DESPACHO
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
-          docker build -t $ECR_REGISTRY/$BACKEND_ECR_REPOSITORY:${{ github.sha }} .
-          docker tag $ECR_REGISTRY/$BACKEND_ECR_REPOSITORY:${{ github.sha }} $ECR_REGISTRY/$BACKEND_ECR_REPOSITORY:latest
-          docker push $ECR_REGISTRY/$BACKEND_ECR_REPOSITORY:${{ github.sha }}
-          docker push $ECR_REGISTRY/$BACKEND_ECR_REPOSITORY:latest
+          docker build -t $ECR_REGISTRY/$BACKEND_ECR_REPOSITORY:despacho-${{ github.sha }} .
+          docker tag $ECR_REGISTRY/$BACKEND_ECR_REPOSITORY:despacho-${{ github.sha }} $ECR_REGISTRY/$BACKEND_ECR_REPOSITORY:despacho-latest
+          docker push $ECR_REGISTRY/$BACKEND_ECR_REPOSITORY:despacho-${{ github.sha }}
+          docker push $ECR_REGISTRY/$BACKEND_ECR_REPOSITORY:despacho-latest
