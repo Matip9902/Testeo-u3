@@ -34,7 +34,7 @@ spec:
               memory: "512Mi"
           env:
             - name: JAVA_TOOL_OPTIONS
-              value: "-XX:MaxRAMPercentage=75.0"
+              value: "-XX:MaxRAMPercentage=60.0"
             - name: DB_HOST
               value: mysql
             - name: SPRING_DATASOURCE_URL

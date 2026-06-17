@@ -18,6 +18,6 @@ resource "aws_eks_node_group" "workers" {
     max_size     = 3
     min_size     = 2
   }
-  instance_types = ["t2.micro"]
+  instance_types = ["t3.medium"]
   capacity_type  = "ON_DEMAND"
 }
