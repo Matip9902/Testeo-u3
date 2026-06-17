@@ -1,4 +1,4 @@
-name: CD - Deploy a ECS
+name: CD - Deploy a EKS
 
 on:
   workflow_run:
@@ -10,13 +10,18 @@ on:
 
 env:
   AWS_REGION: us-east-1
-  ECS_CLUSTER: innovatech-spa-cluster
+  EKS_CLUSTER: innovatech-spa
+  BACKEND_ECR_REPOSITORY: innovatech-spa-backend
+  FRONTEND_ECR_REPOSITORY: innovatech-spa-frontend
 
 jobs:
   deploy:
-    name: Deploy a ECS
+    name: Deploy a EKS
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout codigo
+        uses: actions/checkout@v4
+
       - name: Configurar credenciales AWS
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -25,26 +30,27 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Deploy Frontend
+      - name: Obtener registry ECR
         run: |
-          aws ecs update-service \
-            --cluster $ECS_CLUSTER \
-            --service innovatech-spa-frontend-service \
-            --force-new-deployment \
-            --region $AWS_REGION
+          AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          echo "ECR_REGISTRY=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com" >> $GITHUB_ENV
 
-      - name: Deploy Backend Ventas
+      - name: Configurar kubectl para EKS
         run: |
-          aws ecs update-service \
-            --cluster $ECS_CLUSTER \
-            --service innovatech-spa-backend-ventas-service \
-            --force-new-deployment \
-            --region $AWS_REGION
+          aws eks update-kubeconfig \
+            --region $AWS_REGION \
+            --name $EKS_CLUSTER
 
-      - name: Deploy Backend Despacho
+      - name: Aplicar manifiestos Kubernetes
         run: |
-          aws ecs update-service \
-            --cluster $ECS_CLUSTER \
-            --service innovatech-spa-backend-despacho-service \
-            --force-new-deployment \
-            --region $AWS_REGION
+          kubectl apply -f infra/k8s/
+
+      - name: Actualizar imagenes desde ECR
+        run: |
+          kubectl set image deployment/frontend frontend=$ECR_REGISTRY/$FRONTEND_ECR_REPOSITORY:latest
+          kubectl set image deployment/backend backend=$ECR_REGISTRY/$BACKEND_ECR_REPOSITORY:latest
+
+      - name: Validar despliegue
+        run: |
+          kubectl rollout status deployment/frontend
+          kubectl rollout status deployment/backend

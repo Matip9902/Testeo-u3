@@ -7,9 +7,9 @@ output "cluster-endpoint" {
 }
 
 output "backend-ecr-url" {
-  value = aws_ecr_repository.backend
+  value = aws_ecr_repository.backend.repository_url
 }
 
 output "frontend-ecr-url" {
-  value = aws_ecr_repository.frontend
+  value = aws_ecr_repository.frontend.repository_url
 }

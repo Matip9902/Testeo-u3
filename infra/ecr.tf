@@ -1,21 +1,21 @@
 resource "aws_ecr_repository" "backend" {
-  name         = "${var.nombre_proyecto}-backend"
-    image_scanning_configuration {
+  name = var.backend_ecr_repository_name
+  image_scanning_configuration {
     scan_on_push = true
   }
   force_delete = true
   tags = {
-    Name = "${var.nombre_proyecto}-backend"
+    Name = var.backend_ecr_repository_name
   }
 }
 
 resource "aws_ecr_repository" "frontend" {
-  name         = "${var.nombre_proyecto}-frontend"
-    image_scanning_configuration {
+  name = var.frontend_ecr_repository_name
+  image_scanning_configuration {
     scan_on_push = true
   }
   force_delete = true
   tags = {
-    Name = "${var.nombre_proyecto}-frontend"
+    Name = var.frontend_ecr_repository_name
   }
 }
