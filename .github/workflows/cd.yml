@@ -67,6 +67,66 @@ jobs:
           kubectl rollout status deployment/backend-despachos --timeout=120s
           kubectl get endpoints frontend backend-ventas backend-despachos mysql
 
+      - name: Cargar datos demo
+        run: |
+          kubectl delete job seed-demo-data --ignore-not-found=true
+          cat <<'EOF' | kubectl apply -f -
+          apiVersion: batch/v1
+          kind: Job
+          metadata:
+            name: seed-demo-data
+          spec:
+            backoffLimit: 2
+            template:
+              spec:
+                restartPolicy: Never
+                containers:
+                  - name: seed-demo-data
+                    image: curlimages/curl:8.8.0
+                    command:
+                      - /bin/sh
+                      - -c
+                      - |
+                        set -e
+                        until curl -fsS http://backend-ventas:8080/api/v1/ventas >/dev/null; do
+                          echo "Esperando backend-ventas..."
+                          sleep 5
+                        done
+                        until curl -fsS http://backend-despachos:8080/api/v1/despachos >/dev/null; do
+                          echo "Esperando backend-despachos..."
+                          sleep 5
+                        done
+
+                        ventas="$(curl -fsS http://backend-ventas:8080/api/v1/ventas)"
+                        if [ "$ventas" = "[]" ]; then
+                          curl -fsS -X POST http://backend-ventas:8080/api/v1/ventas \
+                            -H "Content-Type: application/json" \
+                            -d '{"direccionCompra":"Av. Providencia 1234, Santiago","valorCompra":159990,"fechaCompra":"2026-06-17","despachoGenerado":false}'
+                          curl -fsS -X POST http://backend-ventas:8080/api/v1/ventas \
+                            -H "Content-Type: application/json" \
+                            -d '{"direccionCompra":"Los Leones 455, Santiago","valorCompra":89990,"fechaCompra":"2026-06-17","despachoGenerado":false}'
+                          curl -fsS -X POST http://backend-ventas:8080/api/v1/ventas \
+                            -H "Content-Type: application/json" \
+                            -d '{"direccionCompra":"Av. Concon Renaca 220, Vina del Mar","valorCompra":249990,"fechaCompra":"2026-06-17","despachoGenerado":false}'
+                        else
+                          echo "Ventas ya tiene datos; no se duplican registros."
+                        fi
+
+                        despachos="$(curl -fsS http://backend-despachos:8080/api/v1/despachos)"
+                        if [ "$despachos" = "[]" ]; then
+                          curl -fsS -X POST http://backend-despachos:8080/api/v1/despachos \
+                            -H "Content-Type: application/json" \
+                            -d '{"fechaDespacho":"2026-06-18","patenteCamion":"ABCD12","intento":1,"idCompra":1,"direccionCompra":"Av. Providencia 1234, Santiago","valorCompra":159990,"despachado":false}'
+                          curl -fsS -X POST http://backend-despachos:8080/api/v1/despachos \
+                            -H "Content-Type: application/json" \
+                            -d '{"fechaDespacho":"2026-06-18","patenteCamion":"EFGH34","intento":1,"idCompra":2,"direccionCompra":"Los Leones 455, Santiago","valorCompra":89990,"despachado":false}'
+                        else
+                          echo "Despachos ya tiene datos; no se duplican registros."
+                        fi
+          EOF
+          kubectl wait --for=condition=complete job/seed-demo-data --timeout=120s
+          kubectl logs job/seed-demo-data
+
       - name: Diagnostico si falla el despliegue
         if: failure()
         run: |
