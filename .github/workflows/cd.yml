@@ -52,5 +52,13 @@ jobs:
 
       - name: Validar despliegue
         run: |
-          kubectl rollout status deployment/frontend
-          kubectl rollout status deployment/backend
+          kubectl rollout status deployment/frontend --timeout=120s
+          kubectl rollout status deployment/backend --timeout=120s
+
+      - name: Diagnostico si falla el despliegue
+        if: failure()
+        run: |
+          kubectl get pods -o wide
+          kubectl describe deployment frontend
+          kubectl describe deployment backend
+          kubectl get events --sort-by=.metadata.creationTimestamp
