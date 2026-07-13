@@ -40,6 +40,12 @@ spec:
             - name: SPRING_DATASOURCE_URL
               value: jdbc:mysql://mysql:3306/innovatech-spa
             - name: SPRING_DATASOURCE_USERNAME
-              value: root
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: DB_USER
             - name: SPRING_DATASOURCE_PASSWORD
-              value: root
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: DB_PASSWORD

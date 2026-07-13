@@ -45,6 +45,7 @@ services:
     ports:
       - "9090:8080"
     environment:
+      - DB_HOST=mysql-despachos
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-despachos:3306/${MYSQL_DATABASE_DESPACHOS}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD}
@@ -62,6 +63,7 @@ services:
     ports:
       - "9091:8080"
     environment:
+      - DB_HOST=mysql-ventas
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-ventas:3306/${MYSQL_DATABASE_VENTAS}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD}
